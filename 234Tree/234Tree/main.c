@@ -1,10 +1,9 @@
 #include <stdio.h>
-#include <time.h>
 #include <stdlib.h>
 #include <sys/stat.h>
-#include "23Tree.h"
+#include <time.h>
 
-
+#include "234Tree.h"
 static void build_test_set(int *set, int count_of_set, int size_of_set)
 {
 	int i;
@@ -59,62 +58,18 @@ int main(int argc, char *argv[])
 {
 	struct tree_node *root = NULL;
 
-	tree_insert(&root, 30);
-	tree_insert(&root, 10);
-	tree_insert(&root, 40);
-
-	tree_insert(&root, 60);
-	tree_insert(&root, 70);
-
-	tree_insert(&root, 80);
-	tree_insert(&root, 40);
-	tree_insert(&root, 20);
-	tree_insert(&root, 50);
-
-	tree_dump(root);
-
-	tree_remove(&root, 80);
-
-	tree_dump(root);
-
-	tree_remove(&root, 70);
-
-	tree_dump(root);
-
-	tree_remove(&root, 60);
-
-	tree_dump(root);
-
-	tree_remove(&root, 30);
-
-	tree_dump(root);
-
-	tree_remove(&root, 40);
-
-	tree_dump(root);
-	tree_remove(&root, 50);
-
-	tree_dump(root);
-	tree_remove(&root, 20);
-
-	tree_dump(root);
-
-	tree_remove(&root, 10);
-
-	tree_dump(root);
-
-	getchar();
-
-	return 0;
-
+	// 16 * 16 + 2 * 16 + 14
+	// 256 + 32 + 12 = 288 + 12 = 300
 	// 26
-	int test_set[] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 35, 37, 75, 77, 250, 300, 15, 34, 38, 55, 74, 78, 95, 225, 310 };
+	int test_set[] = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 35, 37, 75, 77, 250, 300, 15, 34, 38, 55, 74, 78, 95, 225, 310 };
 	int i;
 
 	for (i = 0; i < sizeof(test_set) / sizeof(test_set[0]); i++) {
 		printf("=> Insert %d\n", test_set[i]);
 		//scanf_s("%d", test_set + i);
 		tree_insert(&root, test_set[i]);
+		if (tree_validate(root) < 0)
+			printf("Invalid tree\n");
 		tree_dump(root);
 	}
 
@@ -122,10 +77,11 @@ int main(int argc, char *argv[])
 	node = tree_search(root, 0x0A);
 
 	for (i = 0; i < sizeof(test_set) / sizeof(test_set[0]); i++) {
-		printf("=> Delete %d\n", test_set[i]);
+		printf("=> Delete %X\n", test_set[i]);
 		tree_remove(&root, test_set[i]);
 		tree_dump(root);
-		if (tree_validate(root) < 0) printf(">>>>> Exception. Tree structure is invalid.\n");
+		if (tree_validate(root) < 0)
+			printf(">>>>> Exception. Tree structure is invalid.\n");
 		else printf("OKAY - Valid tree\n");
 	}
 
@@ -162,7 +118,7 @@ int main(int argc, char *argv[])
 	for (tc = 0; tc < sizeof(insert_set) / sizeof(insert_set[0]); tc++) {
 		for (del_tc = 0; del_tc < sizeof(delete_set) / sizeof(delete_set[0]); del_tc++) {
 			for (i = 0; i < sizeof(insert_set[0]) / sizeof(insert_set[0][0]); i++) {
-				printf("Insert %d\n", insert_set[tc][i]);
+				printf("Insert %X\r", insert_set[tc][i]);
 				tree_insert(&root, insert_set[tc][i]);
 				if (tree_validate(root) < 0) {
 					tree_dump(root);
@@ -175,13 +131,14 @@ int main(int argc, char *argv[])
 				for (k = 0; k <= i; k++) {
 					if (tree_search(root, insert_set[tc][k]) == NULL) {
 						tree_dump(root);
-						printf("Inserted value %d is not found\n", insert_set[tc][k]);
+						printf("Inserted value %X is not found\n", insert_set[tc][k]);
 						store_data("insert.data", (int *)insert_set, sizeof(insert_set));
 						getchar();
 						return -1;
 					}
 				}
 			}
+			printf("\n%d test cases are passed\n", i);
 
 			if (loaded == 0) {
 				do {
@@ -208,7 +165,7 @@ int main(int argc, char *argv[])
 			}
 
 			for (i = 0; i < sizeof(delete_set[0]) / sizeof(delete_set[0][0]); i++) {
-				printf("Delete %d\n", delete_set[del_tc][i]);
+				printf("Delete %X\r", delete_set[del_tc][i]);
 				tree_remove(&root, delete_set[del_tc][i]);
 				if (tree_validate(root) < 0) {
 					tree_dump(root);
@@ -223,7 +180,7 @@ int main(int argc, char *argv[])
 				for (k = 0; k <= i; k++) {
 					if (tree_search(root, delete_set[del_tc][k]) != NULL) {
 						tree_dump(root);
-						printf("Deleted value %d is found\n", delete_set[del_tc][k]);
+						printf("Deleted value %X is found\n", delete_set[del_tc][k]);
 						store_data("insert.data", (int *)insert_set, sizeof(insert_set));
 						store_data("delete.data", (int *)delete_set, sizeof(delete_set));
 						getchar();
@@ -234,7 +191,7 @@ int main(int argc, char *argv[])
 				for (k = i + 1; k < sizeof(delete_set[0]) / sizeof(delete_set[0][0]); k++) {
 					if (tree_search(root, delete_set[del_tc][k]) == NULL) {
 						tree_dump(root);
-						printf("Inserted value %d is not found after deletion\n", delete_set[del_tc][k]);
+						printf("Inserted value %X is not found after deletion\n", delete_set[del_tc][k]);
 						store_data("insert.data", (int *)insert_set, sizeof(insert_set));
 						store_data("delete.data", (int *)delete_set, sizeof(delete_set));
 						getchar();
@@ -242,6 +199,8 @@ int main(int argc, char *argv[])
 					}
 				}
 			}
+
+			printf("\n%d test cases are passed\n", i);
 		}
 	}
 

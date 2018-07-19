@@ -64,6 +64,8 @@ int tree_dump(struct tree_node *root)
 	int val_size = 3;
 	int space = 1;
 
+	printf("\n");
+
 	if (root == NULL) {
 		printf("Empty tree\n");
 		return 0;
